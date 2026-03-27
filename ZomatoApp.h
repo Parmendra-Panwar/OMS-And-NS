@@ -84,7 +84,7 @@ class ZomatoApp {
             bool isPaymentSuccess = order->processPayment();
 
             if(isPaymentSuccess) {
-                NotificationService* notification = new NotificationService();
+                NotificationServicev1* notification = new NotificationServicev1();
                 notification->notify(order);
                 user->getCart()->clear();
             }
