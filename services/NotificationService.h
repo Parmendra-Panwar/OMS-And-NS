@@ -106,9 +106,7 @@ class NotificationObservable: public IObservable{
             observers.erase(remove(observers.begin(), observers.end(), obs), observers.end());
         }
         void notify() override{
-            for(int i=0; i<observers.size(); i++){
-                observers[i]->update();
-            }
+            for(auto obs : observers) obs->update();
         };
         
         void setNotification(INotification* n){
@@ -124,7 +122,7 @@ class NotificationObservable: public IObservable{
         }
 
         string getNotificationContent(){
-            return cNotification->getContent();
+            return cNotification ? cNotification->getContent() : "";
         }
         ~NotificationObservable(){
             if(cNotification != NULL){
@@ -138,7 +136,7 @@ class NotificationService{
     private:
     NotificationObservable* observable;
     static NotificationService* instance;
-    vector<INotification*> notification;
+    vector<INotification*> notifications;
     NotificationService(){
         observable = new NotificationObservable();
     }
@@ -155,12 +153,18 @@ class NotificationService{
     }
 
     void sendNotification(INotification* n){
-        notification.push_back(n);
+        notifications.push_back(n);
         observable->setNotification(n);
     }
 
     ~NotificationService(){
         delete observable;
+
+        // Clean up all stored notifications
+        for(auto n : notifications) {
+            delete n;
+        }
+        notifications.clear();
     }
 };
 
@@ -239,8 +243,13 @@ class NotificationEngine: public IObserver{
 
     NotificationEngine(NotificationObservable* nbsable){
         this->notiOable = nbsable;
+        notiOable->add(this);
     }
 
+    // ADDED DESTRUCTOR to prevent dangling pointer crashes
+    ~NotificationEngine() {
+        if(notiOable) notiOable->removeObs(this);
+    }
     void addNotificationStrategy(INotificationStrategy* ns){
         this->notiStgs.push_back(ns);
     }
@@ -254,11 +263,9 @@ class NotificationEngine: public IObserver{
 };
 
 
-class NotificationServicev1 {
+class NotificationFacade {
     public: 
         static void notify(Order* order) {
-            NotificationService* NS = NotificationService::getInstance();
-            
             Logger logger; 
             NotificationEngine NE; 
             
@@ -273,6 +280,8 @@ class NotificationServicev1 {
             INotification* N = new SimpleNotification(order);
             N = new TimeStemp_Decorator(N);
             N = new Signature_Decorator(N, order->getRestaurant()->getName());
+
+            NotificationService* NS = NotificationService::getInstance();
 
             NS->sendNotification(N);
         }
