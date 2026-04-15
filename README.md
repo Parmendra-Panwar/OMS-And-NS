@@ -1,6 +1,6 @@
 # C++ Order Management & Notification System
 
-A clean-code implementation of a decoupled OMS (Order Management System) and Notification service using **Modern C++**. This project demonstrates scalable architecture and **SOLID principles**.
+A clean-code implementation of a decoupled OMS (Order Management System) with Notification service and Payment Gateway Service using **Modern C++**. This project demonstrates scalable architecture and **SOLID principles**.
 
 ---
 
@@ -10,6 +10,8 @@ A clean-code implementation of a decoupled OMS (Order Management System) and Not
 * **Observer Pattern:** Decoupled notification system to alert users/admins on order state changes.
 * **Decorator Pattern:** Flexible order customization (e.g., adding toppings or packaging) without modifying base classes.
 * **Singleton Pattern:** Centralized state management in `OrderManager` and `RestaurantManager`.
+* **Proxy Pattern:** proxy that prtend like banking service to seems like securing (act like bridge).
+* **Template Pattern:** process to fixed steps.
 
 ## Project Architecture
 * **Factories:** Logic for instantiating diverse order types.
