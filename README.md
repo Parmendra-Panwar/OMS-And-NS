@@ -1,4 +1,4 @@
-# C++ Order Management & Notification System
+## C++ Order Management & Notification & Payment Gateway System
 
 A clean-code implementation of a decoupled OMS (Order Management System) with Notification service and Payment Gateway Service using **Modern C++**. This project demonstrates scalable architecture and **SOLID principles**.
 
