@@ -16,7 +16,7 @@ class ScheduledOrderFactory : public OrderFactory {
         }
 
         Order* createOrder(User* user, Cart* cart, Restaurant* restaurant, const vector<MenuItem>& menuItems,
-        PaymentStrategy* paymentStrategy, double totalCost, const string& orderType) override {
+        const string paymentStrategy,  const string paymentWith, double totalCost, const string& orderType) override {
             Order* order = nullptr;
 
             if(orderType == "Delivery"){
@@ -33,6 +33,7 @@ class ScheduledOrderFactory : public OrderFactory {
             order->setPaymentStrategy(paymentStrategy);
             order->setScheduled(scheduleTime);
             order->setTotal(totalCost);
+            order->setPaymentWith(paymentWith);
             return order;
         } 
 };

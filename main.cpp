@@ -3,6 +3,7 @@
 using namespace std;
 
 int main() {
+    srand(static_cast<unsigned>(time(nullptr)));
     // create app
     ZomatoApp* zomato = new ZomatoApp();
 
@@ -31,7 +32,7 @@ int main() {
 
     zomato->printUserCart(user);
 
-    Order* order = zomato->checkoutNow(user, "Delivery", new UpiPaymentStrategy("152615184121"));
+    Order* order = zomato->checkoutNow(user, "Delivery", "UPI", GatewayType::PAYTM);
 
     zomato->payForOrder(user, order);
 

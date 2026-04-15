@@ -14,6 +14,8 @@
 #include "factories/ScheduledOrderFactory.h"
 #include "services/NotificationService.h"
 #include "utils/TimeUtils.h"
+#include "./services/PaymentService/PaymentService.h"
+
 using namespace std;
 
 class ZomatoApp {
@@ -59,14 +61,26 @@ class ZomatoApp {
             }
         }
 
-        Order* checkoutNow(User* user, const string& orderType, PaymentStrategy* paymentStrategy) {
-            return checkout(user, orderType, paymentStrategy, new NowOrderFactory());
+        Order* checkoutNow(User* user, const string& orderType, const string paymentStrategy, GatewayType paymentWith) {
+            string PaymentWith;
+            if(paymentWith == GatewayType::RAZOREPAY){
+                PaymentWith = "RAZOREPAY";
+            }else{
+                PaymentWith = "PAYTM";
+            }
+            return checkout(user, orderType, paymentStrategy,  PaymentWith, new NowOrderFactory());
         }
-        Order* checkoutScheduled(User* user, const string& orderType, PaymentStrategy* paymentStrategy, const string& scheduleTime) {
-            return checkout(user, orderType, paymentStrategy, new NowOrderFactory());
+        Order* checkoutScheduled(User* user, const string& orderType, const string paymentStrategy, const string& scheduleTime, GatewayType paymentWith) {
+            string PaymentWith;
+            if(paymentWith == GatewayType::RAZOREPAY){
+                PaymentWith = "RAZOREPAY";
+            }else{
+                PaymentWith = "PAYTM";
+            }
+            return checkout(user, orderType, paymentStrategy, PaymentWith, new ScheduledOrderFactory(scheduleTime));
         }
 
-        Order* checkout(User* user, const string& orderType, PaymentStrategy* paymentStrategy, OrderFactory* orderFactory) {
+        Order* checkout(User* user, const string& orderType, const string paymentStrategy, const string paymentWith, OrderFactory* orderFactory) {
             if(user->getCart()->isEmpty())
             return nullptr;
 
@@ -75,13 +89,31 @@ class ZomatoApp {
             vector<MenuItem> itemsOrdered = userCart->getItems();
             double totalCost = userCart->getTotalCost();
 
-            Order* order = orderFactory->createOrder(user, userCart, orderedRestaurant, itemsOrdered, paymentStrategy, totalCost, orderType);
+            Order* order = orderFactory->createOrder(user, userCart, orderedRestaurant, itemsOrdered, paymentStrategy, paymentWith, totalCost, orderType);
 
             return order;
         }
 
         void payForOrder(User* user, Order* order) {
-            bool isPaymentSuccess = order->processPayment();
+            PaymentRequest* req1 = new PaymentRequest(user->getName(), order->getRestaurant()->getName(), order->getTotal(), "INR");
+
+            bool isPaymentSuccess;
+            if(order->getPaymentWith() == "RAZOREPAY"){
+                cout << "Processing via RAZOREPAY and "<< ((order->getPaymentStrategy() == "UPI") ? "UPI" : "CraditCard") << endl;
+                cout << "------------------------------\n";
+                isPaymentSuccess = PaymentController::getInstance().handdlePayment(GatewayType::RAZOREPAY, req1);
+                cout << "Result: " << (isPaymentSuccess ? "SUCCESS" : "FAIL") << "\n";
+                cout << "------------------------------\n\n";
+            }else{
+                cout << "Processing via Paytmand "<< ((order->getPaymentStrategy() == "UPI") ? "UPI" : "CraditCard") << endl;
+                cout << "------------------------------\n";
+                isPaymentSuccess = PaymentController::getInstance().handdlePayment(GatewayType::PAYTM, req1);
+                cout << "Result: " << (isPaymentSuccess ? "SUCCESS" : "FAIL") << "\n";
+                cout << "------------------------------\n\n";
+            }
+            
+
+            // bool isPaymentSuccess = order->processPayment();
 
             if(isPaymentSuccess) {
                 NotificationFacade* notification = new NotificationFacade();

@@ -18,7 +18,8 @@ class Order {
         User* user;
         Restaurant* restaurant;
         vector<MenuItem> items;
-        PaymentStrategy* paymentStrategy;
+        string paymentStrategy;
+        string paymentWith;
         double total;
         string scheduled;
     
@@ -26,25 +27,26 @@ class Order {
         Order() {
             user = nullptr;
             restaurant = nullptr;
-            paymentStrategy = nullptr;
+            paymentStrategy = "";
+            paymentWith = "";
             total = 0.0;
             scheduled = "";
             orderId = ++nextOrderId; 
         }
 
-        virtual ~Order(){
-            delete paymentStrategy;
-        }
+        // virtual ~Order(){
+        //     delete paymentStrategy;
+        // }
 
-        bool processPayment(){
-            if(paymentStrategy) {
-                paymentStrategy->pay(total);
-                return true;
-            } else {
-                cout<< "Please choose a payment mode first" <<endl;
-                return false;
-            }
-        }
+        // bool processPayment(){
+        //     if(paymentStrategy) {
+        //         paymentStrategy->pay(total);
+        //         return true;
+        //     } else {
+        //         cout<< "Please choose a payment mode first" <<endl;
+        //         return false;
+        //     }
+        // }
 
         virtual string getType() const =0;
 
@@ -69,6 +71,14 @@ class Order {
             return restaurant;
         }
 
+        string getPaymentWith() const{
+            return paymentWith;
+        }
+
+        string getPaymentStrategy() const{
+            return paymentStrategy;
+        }
+
         void setItems(const vector<MenuItem>& its){
             items = its;
             total = 0;
@@ -81,8 +91,12 @@ class Order {
             return items;
         }
 
-        void setPaymentStrategy(PaymentStrategy* p) {
+        void setPaymentStrategy(const string p) {
             paymentStrategy = p;
+        }
+
+        void setPaymentWith(const string p) {
+            paymentWith = p;
         }
 
         void setScheduled(const string& s) {

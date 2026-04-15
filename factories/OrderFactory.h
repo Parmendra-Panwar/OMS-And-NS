@@ -12,7 +12,7 @@ using namespace std;
 class OrderFactory {
     public:
         virtual Order* createOrder(User* user, Cart* cart, Restaurant* restaurant, const vector<MenuItem>& menuItems,
-        PaymentStrategy* paymentStrategy, double totalCost, const string& orderType) = 0;
+        const string paymentStrategy, const string paymentWith, double totalCost, const string& orderType) = 0;
 
         virtual ~OrderFactory() {}
 };
